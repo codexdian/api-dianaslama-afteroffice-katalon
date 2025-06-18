@@ -17,10 +17,27 @@ import com.kms.katalon.core.windows.keyword.WindowsBuiltinKeywords as Windows
 import internal.GlobalVariable as GlobalVariable
 import org.openqa.selenium.Keys as Keys
 
+import groovy.json.JsonSlurper
+import com.kms.katalon.core.webservice.keyword.WSBuiltInKeywords as WS
+import groovy.json.JsonSlurper
 def request = findTestObject('API/User/GET User List Success')
-
-
 def response = WS.sendRequest(request)
-
 WS.verifyResponseStatusCode(response, 200)
-//WS.verifyElementPropertyValue(response, 'token', WS.getElementPropertyValue(response, 'token'))
+
+def json = new JsonSlurper().parseText(response.getResponseBodyContent())
+
+json.data.each { user ->
+    assert user.containsKey('id') : "Missing 'id' in user: ${user}"
+    assert user.containsKey('email') : "Missing 'email' in user: ${user}"
+    assert user.containsKey('first_name') : "Missing 'first_name' in user: ${user}"
+    assert user.containsKey('last_name') : "Missing 'last_name' in user: ${user}"
+    assert user.containsKey('avatar') : "Missing 'avatar' in user: ${user}"
+}
+
+json.data.each { user ->
+	assert user.id != null
+	assert user.email != null
+	assert user.first_name != null
+	assert user.last_name != null
+	assert user.avatar != null
+	}
